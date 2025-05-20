@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: pg
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bigdataspark
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    container_name: ch
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ch_data:/var/lib/clickhouse
+
+  spark:
+    image: bitnami/spark:latest
+    container_name: spark
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "4040:4040"
+      - "7077:7077"
+    volumes:
+      - ./app:/opt/spark-apps
+    depends_on:
+      - postgres
+      - clickhouse
+
+volumes:
+  pg_data:
+  ch_data:
+
